@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tier List Creator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --tier-sss: #FF2D55;
+    --tier-ss:  #FF6B00;
+    --tier-s:   #FFCC00;
+    --tier-ap:  #9DFF3E;
+    --tier-a:   #3ECEFF;
+    --tier-b:   #9B59FF;
+    --bg:       #0A0A0F;
+    --surface:  #13131C;
+    --card:     #1C1C2A;
+    --border:   rgba(255,255,255,0.08);
+    --text:     #E8E8F0;
+    --muted:    rgba(255,255,255,0.35);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    padding-bottom: 48px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  header {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 3px;
+    background: linear-gradient(90deg, #FF2D55, #FF6B00, #FFCC00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 14px;
+  }
+
+  /* ── PERSONAJES SECTION (top) ── */
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .pool-drop {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 88px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+    transition: background 0.15s, border-color 0.15s;
+    margin-bottom: 24px;
+  }
+
+  .pool-drop.drag-over {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.2);
+  }
+
+  .pool-empty {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    align-self: center;
+    text-align: center;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  /* ── TIER ROWS ── */
+  .tiers-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .tier-row {
+    display: flex;
+    min-height: 80px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tier-row:last-child { border-bottom: none; }
+
+  .tier-label {
+    width: 70px;
+    min-width: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    letter-spacing: 1px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .tier-label::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .tier-row[data-tier="SSS"] .tier-label { color: var(--tier-sss); background: rgba(255,45,85,0.08); }
+  .tier-row[data-tier="SS"]  .tier-label { color: var(--tier-ss);  background: rgba(255,107,0,0.08); }
+  .tier-row[data-tier="S"]   .tier-label { color: var(--tier-s);   background: rgba(255,204,0,0.08); }
+  .tier-row[data-tier="A+"]  .tier-label { color: var(--tier-ap);  background: rgba(157,255,62,0.08); }
+  .tier-row[data-tier="A"]   .tier-label { color: var(--tier-a);   background: rgba(62,206,255,0.08); }
+  .tier-row[data-tier="B"]   .tier-label { color: var(--tier-b);   background: rgba(155,89,255,0.08); }
+
+  .tier-drop {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 8px 10px;
+    gap: 6px;
+    min-height: 80px;
+    transition: background 0.15s;
+  }
+
+  .tier-drop.drag-over { background: rgba(255,255,255,0.05); }
+  .tier-row[data-tier="SSS"] .tier-drop.drag-over { box-shadow: inset 0 0 30px rgba(255,45,85,0.06); }
+  .tier-row[data-tier="SS"]  .tier-drop.drag-over { box-shadow: inset 0 0 30px rgba(255,107,0,0.06); }
+  .tier-row[data-tier="S"]   .tier-drop.drag-over { box-shadow: inset 0 0 30px rgba(255,204,0,0.06); }
+  .tier-row[data-tier="A+"]  .tier-drop.drag-over { box-shadow: inset 0 0 30px rgba(157,255,62,0.06); }
+  .tier-row[data-tier="A"]   .tier-drop.drag-over { box-shadow: inset 0 0 30px rgba(62,206,255,0.06); }
+  .tier-row[data-tier="B"]   .tier-drop.drag-over { box-shadow: inset 0 0 30px rgba(155,89,255,0.06); }
+
+  /* ── CHARACTER CARDS ── */
+  .char-card {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: grab;
+    position: relative;
+    border: 2px solid transparent;
+    transition: transform 0.12s, border-color 0.12s;
+    flex-shrink: 0;
+    user-select: none;
+    background: var(--card);
+    touch-action: none;
+  }
+
+  .char-card:hover {
+    transform: scale(1.1);
+    border-color: rgba(255,255,255,0.3);
+    z-index: 10;
+  }
+
+  .char-card.dragging { opacity: 0.35; cursor: grabbing; }
+  .char-card.touch-active { border-color: rgba(255,255,255,0.5); transform: scale(1.05); }
+
+  .char-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+
+  .char-card .char-name {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.78);
+    color: #fff;
+    font-size: 8.5px;
+    font-weight: 700;
+    text-align: center;
+    padding: 2px 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .char-card .delete-btn {
+    position: absolute;
+    top: 2px; right: 2px;
+    width: 18px; height: 18px;
+    background: rgba(255,45,85,0.9);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 10px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-weight: 700;
+    z-index: 5;
+  }
+
+  .char-card:hover .delete-btn { display: flex; }
+
+  /* On mobile always show delete button (smaller) */
+  @media (hover: none) {
+    .char-card .delete-btn { display: flex; width: 16px; height: 16px; font-size: 9px; }
+  }
+
+  /* ── ACTIONS ── */
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 11px 20px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    min-height: 44px;
+    flex: 1;
+    min-width: 130px;
+    text-align: center;
+  }
+
+  .btn:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.3); }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-add  { border-color: rgba(255,255,255,0.2); color: var(--text); cursor: pointer; }
+  .btn-add:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.35); }
+  .btn-danger:hover  { background: rgba(255,45,85,0.1); }
+
+  .btn-primary { border-color: rgba(255,204,0,0.5); color: #FFCC00; }
+  .btn-primary:hover { background: rgba(255,204,0,0.1); }
+
+  /* ── MODAL ── */
+  .name-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .name-overlay.active { display: flex; }
+
+  .name-modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 24px 20px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+  }
+
+  .name-modal h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+  }
+
+  .name-modal img {
+    width: 76px; height: 76px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 0 auto 14px;
+    display: block;
+    border: 2px solid var(--border);
+  }
+
+  .name-modal input {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    padding: 11px 14px;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .name-modal input:focus { border-color: rgba(255,204,0,0.5); }
+
+  .name-modal .modal-btns { display: flex; gap: 10px; }
+  .name-modal .modal-btns .btn { font-size: 12px; padding: 10px 14px; }
+
+  /* ── TOUCH GHOST ── */
+  #touchGhost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    width: 64px; height: 64px;
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0.75;
+    border: 2px solid rgba(255,255,255,0.4);
+    display: none;
+  }
+  #touchGhost img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ── MOBILE TWEAKS ── */
+  @media (max-width: 480px) {
+    header { padding: 14px 14px 12px; }
+    header h1 { font-size: 34px; }
+    header p { font-size: 10px; }
+    .main { padding: 14px 10px; }
+    .tier-label { width: 54px; min-width: 54px; font-size: 24px; }
+    .char-card { width: 58px; height: 58px; }
+    .tier-drop { padding: 6px 8px; gap: 5px; min-height: 72px; }
+    .tier-row { min-height: 72px; }
+    .pool-drop { gap: 6px; padding: 8px; }
+    .upload-icon { font-size: 24px; }
+    .upload-area { padding: 16px 12px; }
+    .btn { font-size: 12px; padding: 10px 12px; min-width: 100px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>TIER LIST</h1>
+    <p>Sube personajes · Arrastra al tier</p>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- PERSONAJES ARRIBA -->
+  <div class="section-title">Personajes</div>
+
+  <div class="pool-drop" id="characterPool">
+    <p class="pool-empty" id="poolEmpty">Toca "+ Agregar personajes" para comenzar</p>
+  </div>
+
+  <!-- TIER LIST ABAJO -->
+  <div class="section-title" style="margin-bottom:10px;">Tier List</div>
+
+  <div class="tiers-wrapper" id="tierContainer">
+    <div class="tier-row" data-tier="SSS">
+      <div class="tier-label">SSS</div>
+      <div class="tier-drop" data-tier="SSS"></div>
+    </div>
+    <div class="tier-row" data-tier="SS">
+      <div class="tier-label">SS</div>
+      <div class="tier-drop" data-tier="SS"></div>
+    </div>
+    <div class="tier-row" data-tier="S">
+      <div class="tier-label">S</div>
+      <div class="tier-drop" data-tier="S"></div>
+    </div>
+    <div class="tier-row" data-tier="A+">
+      <div class="tier-label">A+</div>
+      <div class="tier-drop" data-tier="A+"></div>
+    </div>
+    <div class="tier-row" data-tier="A">
+      <div class="tier-label">A</div>
+      <div class="tier-drop" data-tier="A"></div>
+    </div>
+    <div class="tier-row" data-tier="B">
+      <div class="tier-label">B</div>
+      <div class="tier-drop" data-tier="B"></div>
+    </div>
+  </div>
+
+  <!-- ACCIONES AL FINAL -->
+  <div class="actions">
+    <label class="btn btn-add" title="Agregar personajes">
+      <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+      + Agregar personajes
+    </label>
+    <button class="btn btn-primary" onclick="exportImage()">⬇ Exportar</button>
+    <button class="btn btn-danger" onclick="clearAll()">✕ Limpiar</button>
+  </div>
+
+</div>
+
+<!-- Name Modal -->
+<div class="name-overlay" id="nameOverlay">
+  <div class="name-modal">
+    <h3>Nombre del personaje</h3>
+    <img id="modalPreview" src="" alt="preview">
+    <input type="text" id="nameInput" placeholder="Ej: Goku, Naruto..." maxlength="20">
+    <div class="modal-btns">
+      <button class="btn" onclick="cancelUpload()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmName()">Agregar ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- Touch ghost element -->
+<div id="touchGhost"><img id="ghostImg" src="" alt=""></div>
+
+<script>
+  let dragging = null;
+  let pendingFiles = [];
+  let pendingIndex = 0;
+  let pendingData = [];
+  let modalQueue = [];
+  let currentModal = 0;
+
+  const pool = document.getElementById('characterPool');
+  const poolEmpty = document.getElementById('poolEmpty');
+  const fileInput = document.getElementById('fileInput');
+  const nameOverlay = document.getElementById('nameOverlay');
+  const nameInput = document.getElementById('nameInput');
+  const modalPreview = document.getElementById('modalPreview');
+  const touchGhost = document.getElementById('touchGhost');
+  const ghostImg = document.getElementById('ghostImg');
+
+  // Upload via label button
+  fileInput.addEventListener('change', e => { processFiles(Array.from(e.target.files)); fileInput.value = ''; });
+
+  function processFiles(files) {
+    const imageFiles = files.filter(f => f.type.startsWith('image/'));
+    if (!imageFiles.length) return;
+    pendingFiles = imageFiles;
+    pendingIndex = 0;
+    pendingData = [];
+    readNextFile();
+  }
+
+  function readNextFile() {
+    if (pendingIndex >= pendingFiles.length) { showModal(); return; }
+    const file = pendingFiles[pendingIndex];
+    const reader = new FileReader();
+    reader.onload = e => {
+      pendingData.push({ src: e.target.result, name: file.name.replace(/\.[^/.]+$/, '') });
+      pendingIndex++;
+      readNextFile();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function showModal() {
+    modalQueue = [...pendingData];
+    currentModal = 0;
+    showNextModal();
+  }
+
+  function showNextModal() {
+    if (currentModal >= modalQueue.length) { nameOverlay.classList.remove('active'); return; }
+    const item = modalQueue[currentModal];
+    modalPreview.src = item.src;
+    nameInput.value = item.name;
+    nameOverlay.classList.add('active');
+    setTimeout(() => nameInput.select(), 80);
+  }
+
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') confirmName(); });
+
+  function confirmName() {
+    const item = modalQueue[currentModal];
+    item.name = nameInput.value.trim() || 'Personaje';
+    addCharacter(item.src, item.name);
+    currentModal++;
+    showNextModal();
+  }
+
+  function cancelUpload() { currentModal++; showNextModal(); }
+
+  function addCharacter(src, name) {
+    poolEmpty.style.display = 'none';
+    pool.appendChild(createCard(src, name));
+  }
+
+  function createCard(src, name) {
+    const card = document.createElement('div');
+    card.className = 'char-card';
+    card.draggable = true;
+    card.dataset.src = src;
+    card.dataset.name = name;
+
+    const img = document.createElement('img');
+    img.src = src; img.alt = name;
+
+    const label = document.createElement('div');
+    label.className = 'char-name';
+    label.textContent = name;
+
+    const del = document.createElement('button');
+    del.className = 'delete-btn';
+    del.innerHTML = '✕';
+    del.title = 'Eliminar';
+    del.addEventListener('click', e => { e.stopPropagation(); card.remove(); checkPoolEmpty(); });
+
+    card.appendChild(img);
+    card.appendChild(label);
+    card.appendChild(del);
+    setupDrag(card);
+    setupTouch(card);
+    return card;
+  }
+
+  function checkPoolEmpty() {
+    poolEmpty.style.display = pool.querySelector('.char-card') ? 'none' : '';
+  }
+
+  /* ── MOUSE DRAG ── */
+  function setupDrag(card) {
+    card.addEventListener('dragstart', e => {
+      dragging = card;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', () => {
+      dragging = null;
+      card.classList.remove('dragging');
+      checkPoolEmpty();
+    });
+  }
+
+  function bindDropZone(zone) {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', e => { if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over'); });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (dragging) { zone.appendChild(dragging); checkPoolEmpty(); }
+    });
+  }
+
+  bindDropZone(pool);
+  document.querySelectorAll('.tier-drop').forEach(bindDropZone);
+
+  /* ── TOUCH DRAG (mobile) ── */
+  let touchCard = null;
+  let touchOrigin = null;
+  let touchMoved = false;
+  let longPressTimer = null;
+  let touchDragging = false;
+
+  function setupTouch(card) {
+    card.addEventListener('touchstart', e => {
+      touchCard = card;
+      touchMoved = false;
+      touchDragging = false;
+      const t = e.touches[0];
+      touchOrigin = { x: t.clientX, y: t.clientY };
+
+      longPressTimer = setTimeout(() => {
+        touchDragging = true;
+        card.classList.add('touch-active');
+        ghostImg.src = card.dataset.src;
+        touchGhost.style.display = 'block';
+        touchGhost.style.left = (touchOrigin.x - 32) + 'px';
+        touchGhost.style.top  = (touchOrigin.y - 32) + 'px';
+        if (navigator.vibrate) navigator.vibrate(40);
+      }, 180);
+    }, { passive: true });
+
+    card.addEventListener('touchmove', e => {
+      touchMoved = true;
+      if (!touchDragging) { clearTimeout(longPressTimer); return; }
+      e.preventDefault();
+      const t = e.touches[0];
+      touchGhost.style.left = (t.clientX - 32) + 'px';
+      touchGhost.style.top  = (t.clientY - 32) + 'px';
+    }, { passive: false });
+
+    card.addEventListener('touchend', e => {
+      clearTimeout(longPressTimer);
+      card.classList.remove('touch-active');
+      touchGhost.style.display = 'none';
+
+      if (!touchDragging) { touchCard = null; return; }
+
+      const t = e.changedTouches[0];
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      const zone = el && (el.closest('.tier-drop') || el.closest('#characterPool'));
+      if (zone && zone !== card.parentElement) {
+        zone.appendChild(card);
+        checkPoolEmpty();
+      }
+      touchDragging = false;
+      touchCard = null;
+    }, { passive: true });
+  }
+
+  function clearAll() {
+    if (!confirm('¿Eliminar todos los personajes y limpiar el tier list?')) return;
+    document.querySelectorAll('.char-card').forEach(c => c.remove());
+    poolEmpty.style.display = '';
+  }
+
+  function exportImage() {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    script.onload = () => {
+      html2canvas(document.getElementById('tierContainer'), { backgroundColor: '#0A0A0F', scale: 2, useCORS: true }).then(canvas => {
+        const a = document.createElement('a');
+        a.download = 'tierlist.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      });
+    };
+    script.onerror = () => alert('No se pudo exportar. Toma una captura de pantalla.');
+    document.head.appendChild(script);
+  }
+</script>
+</body>
+</html>
