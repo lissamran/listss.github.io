@@ -31,14 +31,12 @@
     min-height: 100vh;
     padding-bottom: 48px;
     -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
   }
 
   header {
     padding: 20px 20px 16px;
     border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 14px;
   }
 
   header h1 {
@@ -66,7 +64,6 @@
     padding: 20px 14px;
   }
 
-  /* ── PERSONAJES SECTION (top) ── */
   .section-title {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 20px;
@@ -76,6 +73,7 @@
     margin-bottom: 10px;
   }
 
+  /* ── POOL ── */
   .pool-drop {
     display: flex;
     flex-wrap: wrap;
@@ -85,30 +83,30 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 10px;
-    transition: background 0.15s, border-color 0.15s;
     margin-bottom: 24px;
+    transition: background 0.15s, border-color 0.15s;
+    align-items: flex-start;
+    align-content: flex-start;
   }
 
   .pool-drop.drag-over {
     background: rgba(255,255,255,0.04);
-    border-color: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.25);
   }
 
   .pool-empty {
     color: var(--muted);
     font-size: 13px;
-    letter-spacing: 0.5px;
     align-self: center;
     text-align: center;
     width: 100%;
     pointer-events: none;
   }
 
-  /* ── TIER ROWS ── */
+  /* ── TIERS ── */
   .tiers-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 0;
     margin-bottom: 24px;
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -143,31 +141,38 @@
     background: var(--border);
   }
 
-  .tier-row[data-tier="SSS"] .tier-label { color: var(--tier-sss); background: rgba(255,45,85,0.08); }
-  .tier-row[data-tier="SS"]  .tier-label { color: var(--tier-ss);  background: rgba(255,107,0,0.08); }
-  .tier-row[data-tier="S"]   .tier-label { color: var(--tier-s);   background: rgba(255,204,0,0.08); }
-  .tier-row[data-tier="A+"]  .tier-label { color: var(--tier-ap);  background: rgba(157,255,62,0.08); }
-  .tier-row[data-tier="A"]   .tier-label { color: var(--tier-a);   background: rgba(62,206,255,0.08); }
-  .tier-row[data-tier="B"]   .tier-label { color: var(--tier-b);   background: rgba(155,89,255,0.08); }
+  .tier-row[data-tier="SSS"] .tier-label { color: var(--tier-sss); background: rgba(255,45,85,0.09); }
+  .tier-row[data-tier="SS"]  .tier-label { color: var(--tier-ss);  background: rgba(255,107,0,0.09); }
+  .tier-row[data-tier="S"]   .tier-label { color: var(--tier-s);   background: rgba(255,204,0,0.09); }
+  .tier-row[data-tier="A+"]  .tier-label { color: var(--tier-ap);  background: rgba(157,255,62,0.09); }
+  .tier-row[data-tier="A"]   .tier-label { color: var(--tier-a);   background: rgba(62,206,255,0.09); }
+  .tier-row[data-tier="B"]   .tier-label { color: var(--tier-b);   background: rgba(155,89,255,0.09); }
 
   .tier-drop {
     flex: 1;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    align-content: center;
     padding: 8px 10px;
     gap: 6px;
     min-height: 80px;
     transition: background 0.15s;
   }
 
-  .tier-drop.drag-over { background: rgba(255,255,255,0.05); }
-  .tier-row[data-tier="SSS"] .tier-drop.drag-over { box-shadow: inset 0 0 30px rgba(255,45,85,0.06); }
-  .tier-row[data-tier="SS"]  .tier-drop.drag-over { box-shadow: inset 0 0 30px rgba(255,107,0,0.06); }
-  .tier-row[data-tier="S"]   .tier-drop.drag-over { box-shadow: inset 0 0 30px rgba(255,204,0,0.06); }
-  .tier-row[data-tier="A+"]  .tier-drop.drag-over { box-shadow: inset 0 0 30px rgba(157,255,62,0.06); }
-  .tier-row[data-tier="A"]   .tier-drop.drag-over { box-shadow: inset 0 0 30px rgba(62,206,255,0.06); }
-  .tier-row[data-tier="B"]   .tier-drop.drag-over { box-shadow: inset 0 0 30px rgba(155,89,255,0.06); }
+  .tier-drop.drag-over { background: rgba(255,255,255,0.04); }
+
+  /* ── DROP PLACEHOLDER (insert indicator) ── */
+  .drop-placeholder {
+    width: 4px;
+    min-width: 4px;
+    height: 64px;
+    background: #FFCC00;
+    border-radius: 3px;
+    box-shadow: 0 0 10px #FFCC00, 0 0 4px #FFCC00;
+    flex-shrink: 0;
+    pointer-events: none;
+  }
 
   /* ── CHARACTER CARDS ── */
   .char-card {
@@ -178,27 +183,31 @@
     cursor: grab;
     position: relative;
     border: 2px solid transparent;
-    transition: transform 0.12s, border-color 0.12s;
+    transition: transform 0.12s, border-color 0.12s, opacity 0.12s;
     flex-shrink: 0;
     user-select: none;
     background: var(--card);
-    touch-action: none;
+    -webkit-user-select: none;
   }
 
   .char-card:hover {
-    transform: scale(1.1);
+    transform: scale(1.08);
     border-color: rgba(255,255,255,0.3);
     z-index: 10;
   }
 
-  .char-card.dragging { opacity: 0.35; cursor: grabbing; }
-  .char-card.touch-active { border-color: rgba(255,255,255,0.5); transform: scale(1.05); }
+  .char-card.dragging {
+    opacity: 0.25;
+    cursor: grabbing;
+    transform: scale(0.95);
+  }
 
   .char-card img {
     width: 100%; height: 100%;
     object-fit: cover;
     display: block;
     pointer-events: none;
+    -webkit-user-drag: none;
   }
 
   .char-card .char-name {
@@ -216,13 +225,14 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    pointer-events: none;
   }
 
   .char-card .delete-btn {
     position: absolute;
     top: 2px; right: 2px;
     width: 18px; height: 18px;
-    background: rgba(255,45,85,0.9);
+    background: rgba(220,30,60,0.92);
     border: none;
     border-radius: 50%;
     color: white;
@@ -231,16 +241,35 @@
     display: none;
     align-items: center;
     justify-content: center;
-    line-height: 1;
     font-weight: 700;
-    z-index: 5;
+    z-index: 20;
   }
 
   .char-card:hover .delete-btn { display: flex; }
 
-  /* On mobile always show delete button (smaller) */
   @media (hover: none) {
-    .char-card .delete-btn { display: flex; width: 16px; height: 16px; font-size: 9px; }
+    .char-card .delete-btn { display: flex; width: 16px; height: 16px; font-size: 9px; top: 1px; right: 1px; }
+  }
+
+  /* ── TOUCH GHOST ── */
+  #touchGhost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    width: 68px; height: 68px;
+    border-radius: 10px;
+    overflow: hidden;
+    display: none;
+    border: 2.5px solid rgba(255,255,255,0.6);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    transform: scale(1.12);
+    transform-origin: center center;
+  }
+
+  #touchGhost img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
   /* ── ACTIONS ── */
@@ -262,30 +291,32 @@
     background: transparent;
     color: var(--text);
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
     min-height: 44px;
     flex: 1;
-    min-width: 130px;
+    min-width: 120px;
     text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .btn:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.3); }
-  .btn:active { transform: scale(0.97); }
+  .btn:hover   { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.3); }
+  .btn:active  { transform: scale(0.96); }
 
-  .btn-add  { border-color: rgba(255,255,255,0.2); color: var(--text); cursor: pointer; }
-  .btn-add:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.35); }
-  .btn-danger:hover  { background: rgba(255,45,85,0.1); }
-
+  .btn-add     { border-color: rgba(255,255,255,0.2); }
   .btn-primary { border-color: rgba(255,204,0,0.5); color: #FFCC00; }
   .btn-primary:hover { background: rgba(255,204,0,0.1); }
+  .btn-danger  { border-color: rgba(255,45,85,0.4); color: #FF2D55; }
+  .btn-danger:hover  { background: rgba(255,45,85,0.1); }
 
   /* ── MODAL ── */
   .name-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.8);
-    z-index: 200;
+    background: rgba(0,0,0,0.82);
+    z-index: 500;
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -329,66 +360,44 @@
     padding: 11px 14px;
     margin-bottom: 16px;
     outline: none;
-    transition: border-color 0.15s;
     -webkit-appearance: none;
+    transition: border-color 0.15s;
   }
-  .name-modal input:focus { border-color: rgba(255,204,0,0.5); }
+  .name-modal input:focus { border-color: rgba(255,204,0,0.6); }
 
   .name-modal .modal-btns { display: flex; gap: 10px; }
   .name-modal .modal-btns .btn { font-size: 12px; padding: 10px 14px; }
 
-  /* ── TOUCH GHOST ── */
-  #touchGhost {
-    position: fixed;
-    pointer-events: none;
-    z-index: 999;
-    width: 64px; height: 64px;
-    border-radius: 8px;
-    overflow: hidden;
-    opacity: 0.75;
-    border: 2px solid rgba(255,255,255,0.4);
-    display: none;
-  }
-  #touchGhost img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-  /* ── MOBILE TWEAKS ── */
+  /* ── MOBILE ── */
   @media (max-width: 480px) {
-    header { padding: 14px 14px 12px; }
+    header { padding: 14px 14px 10px; }
     header h1 { font-size: 34px; }
-    header p { font-size: 10px; }
     .main { padding: 14px 10px; }
-    .tier-label { width: 54px; min-width: 54px; font-size: 24px; }
+    .tier-label { width: 52px; min-width: 52px; font-size: 22px; }
     .char-card { width: 58px; height: 58px; }
+    .drop-placeholder { height: 58px; }
     .tier-drop { padding: 6px 8px; gap: 5px; min-height: 72px; }
     .tier-row { min-height: 72px; }
     .pool-drop { gap: 6px; padding: 8px; }
-    .upload-icon { font-size: 24px; }
-    .upload-area { padding: 16px 12px; }
-    .btn { font-size: 12px; padding: 10px 12px; min-width: 100px; }
+    .btn { font-size: 11px; padding: 10px 12px; min-width: 90px; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div>
-    <h1>TIER LIST</h1>
-    <p>Sube personajes · Arrastra al tier</p>
-  </div>
+  <h1>TIER LIST</h1>
+  <p>Arrastra personajes · Inserta en cualquier posición</p>
 </header>
 
 <div class="main">
 
-  <!-- PERSONAJES ARRIBA -->
   <div class="section-title">Personajes</div>
-
   <div class="pool-drop" id="characterPool">
     <p class="pool-empty" id="poolEmpty">Toca "+ Agregar personajes" para comenzar</p>
   </div>
 
-  <!-- TIER LIST ABAJO -->
   <div class="section-title" style="margin-bottom:10px;">Tier List</div>
-
   <div class="tiers-wrapper" id="tierContainer">
     <div class="tier-row" data-tier="SSS">
       <div class="tier-label">SSS</div>
@@ -416,23 +425,21 @@
     </div>
   </div>
 
-  <!-- ACCIONES AL FINAL -->
   <div class="actions">
-    <label class="btn btn-add" title="Agregar personajes">
+    <label class="btn btn-add">
       <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
       + Agregar personajes
     </label>
     <button class="btn btn-primary" onclick="exportImage()">⬇ Exportar</button>
-    <button class="btn btn-danger" onclick="clearAll()">✕ Limpiar</button>
+    <button class="btn btn-danger"  onclick="clearAll()">✕ Limpiar</button>
   </div>
 
 </div>
 
-<!-- Name Modal -->
 <div class="name-overlay" id="nameOverlay">
   <div class="name-modal">
     <h3>Nombre del personaje</h3>
-    <img id="modalPreview" src="" alt="preview">
+    <img id="modalPreview" src="" alt="">
     <input type="text" id="nameInput" placeholder="Ej: Goku, Naruto..." maxlength="20">
     <div class="modal-btns">
       <button class="btn" onclick="cancelUpload()">Cancelar</button>
@@ -441,215 +448,332 @@
   </div>
 </div>
 
-<!-- Touch ghost element -->
 <div id="touchGhost"><img id="ghostImg" src="" alt=""></div>
 
 <script>
-  let dragging = null;
-  let pendingFiles = [];
-  let pendingIndex = 0;
-  let pendingData = [];
-  let modalQueue = [];
-  let currentModal = 0;
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+const pool        = document.getElementById('characterPool');
+const poolEmpty   = document.getElementById('poolEmpty');
+const fileInput   = document.getElementById('fileInput');
+const nameOverlay = document.getElementById('nameOverlay');
+const nameInput   = document.getElementById('nameInput');
+const modalPreview= document.getElementById('modalPreview');
+const touchGhost  = document.getElementById('touchGhost');
+const ghostImg    = document.getElementById('ghostImg');
 
-  const pool = document.getElementById('characterPool');
-  const poolEmpty = document.getElementById('poolEmpty');
-  const fileInput = document.getElementById('fileInput');
-  const nameOverlay = document.getElementById('nameOverlay');
-  const nameInput = document.getElementById('nameInput');
-  const modalPreview = document.getElementById('modalPreview');
-  const touchGhost = document.getElementById('touchGhost');
-  const ghostImg = document.getElementById('ghostImg');
+const placeholder = document.createElement('div');
+placeholder.className = 'drop-placeholder';
 
-  // Upload via label button
-  fileInput.addEventListener('change', e => { processFiles(Array.from(e.target.files)); fileInput.value = ''; });
+let mouseDragging = null;   
+let touchCard     = null;   
+let touchDragging = false;  
+let touchStartX   = 0;
+let touchStartY   = 0;
+const DRAG_THRESHOLD = 8;  
 
-  function processFiles(files) {
-    const imageFiles = files.filter(f => f.type.startsWith('image/'));
-    if (!imageFiles.length) return;
-    pendingFiles = imageFiles;
-    pendingIndex = 0;
-    pendingData = [];
-    readNextFile();
-  }
+let pendingData   = [];
+let modalQueue    = [];
+let currentModal  = 0;
+let lastTargetZone = null; // Guarda la última zona válida donde estuvo el touch
 
-  function readNextFile() {
-    if (pendingIndex >= pendingFiles.length) { showModal(); return; }
-    const file = pendingFiles[pendingIndex];
+// ─────────────────────────────────────────────
+//  FILE UPLOAD
+// ─────────────────────────────────────────────
+fileInput.addEventListener('change', e => {
+  processFiles(Array.from(e.target.files));
+  fileInput.value = '';
+});
+
+function processFiles(files) {
+  const imgs = files.filter(f => f.type.startsWith('image/'));
+  if (!imgs.length) return;
+  pendingData = [];
+  let loaded = 0;
+  imgs.forEach(file => {
     const reader = new FileReader();
-    reader.onload = e => {
-      pendingData.push({ src: e.target.result, name: file.name.replace(/\.[^/.]+$/, '') });
-      pendingIndex++;
-      readNextFile();
+    reader.onload = ev => {
+      pendingData.push({ src: ev.target.result, name: file.name.replace(/\.[^/.]+$/, '') });
+      if (++loaded === imgs.length) {
+        modalQueue  = [...pendingData];
+        currentModal = 0;
+        showNextModal();
+      }
     };
     reader.readAsDataURL(file);
-  }
+  });
+}
 
-  function showModal() {
-    modalQueue = [...pendingData];
-    currentModal = 0;
-    showNextModal();
-  }
+function showNextModal() {
+  if (currentModal >= modalQueue.length) { nameOverlay.classList.remove('active'); return; }
+  const item = modalQueue[currentModal];
+  modalPreview.src  = item.src;
+  nameInput.value   = item.name;
+  nameOverlay.classList.add('active');
+  setTimeout(() => nameInput.select(), 60);
+}
 
-  function showNextModal() {
-    if (currentModal >= modalQueue.length) { nameOverlay.classList.remove('active'); return; }
-    const item = modalQueue[currentModal];
-    modalPreview.src = item.src;
-    nameInput.value = item.name;
-    nameOverlay.classList.add('active');
-    setTimeout(() => nameInput.select(), 80);
-  }
+nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') confirmName(); });
 
-  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') confirmName(); });
+function confirmName() {
+  const item  = modalQueue[currentModal];
+  item.name   = nameInput.value.trim() || 'Personaje';
+  addCharacter(item.src, item.name);
+  currentModal++;
+  showNextModal();
+}
 
-  function confirmName() {
-    const item = modalQueue[currentModal];
-    item.name = nameInput.value.trim() || 'Personaje';
-    addCharacter(item.src, item.name);
-    currentModal++;
-    showNextModal();
-  }
+function cancelUpload() { currentModal++; showNextModal(); }
 
-  function cancelUpload() { currentModal++; showNextModal(); }
+function addCharacter(src, name) {
+  poolEmpty.style.display = 'none';
+  pool.appendChild(createCard(src, name));
+}
 
-  function addCharacter(src, name) {
-    poolEmpty.style.display = 'none';
-    pool.appendChild(createCard(src, name));
-  }
+// ─────────────────────────────────────────────
+//  CARD FACTORY
+// ─────────────────────────────────────────────
+function createCard(src, name) {
+  const card = document.createElement('div');
+  card.className   = 'char-card';
+  card.draggable   = true;
+  card.dataset.src = src;
+  card.dataset.name = name;
 
-  function createCard(src, name) {
-    const card = document.createElement('div');
-    card.className = 'char-card';
-    card.draggable = true;
-    card.dataset.src = src;
-    card.dataset.name = name;
+  const img = document.createElement('img');
+  img.src = src; img.alt = name;
+  img.draggable = false; 
 
-    const img = document.createElement('img');
-    img.src = src; img.alt = name;
+  const label = document.createElement('div');
+  label.className = 'char-name';
+  label.textContent = name;
 
-    const label = document.createElement('div');
-    label.className = 'char-name';
-    label.textContent = name;
+  const del = document.createElement('button');
+  del.className = 'delete-btn';
+  del.innerHTML = '✕';
+  del.addEventListener('click', e => {
+    e.stopPropagation();
+    card.remove();
+    checkPoolEmpty();
+  });
 
-    const del = document.createElement('button');
-    del.className = 'delete-btn';
-    del.innerHTML = '✕';
-    del.title = 'Eliminar';
-    del.addEventListener('click', e => { e.stopPropagation(); card.remove(); checkPoolEmpty(); });
+  card.appendChild(img);
+  card.appendChild(label);
+  card.appendChild(del);
 
-    card.appendChild(img);
-    card.appendChild(label);
-    card.appendChild(del);
-    setupDrag(card);
-    setupTouch(card);
-    return card;
-  }
+  setupMouseDrag(card);
+  return card;
+}
 
-  function checkPoolEmpty() {
-    poolEmpty.style.display = pool.querySelector('.char-card') ? 'none' : '';
-  }
+function checkPoolEmpty() {
+  poolEmpty.style.display = pool.querySelector('.char-card') ? 'none' : '';
+}
 
-  /* ── MOUSE DRAG ── */
-  function setupDrag(card) {
-    card.addEventListener('dragstart', e => {
-      dragging = card;
-      card.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    card.addEventListener('dragend', () => {
-      dragging = null;
-      card.classList.remove('dragging');
-      checkPoolEmpty();
-    });
-  }
+function removePlaceholder() {
+  if (placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+}
 
-  function bindDropZone(zone) {
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', e => { if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over'); });
-    zone.addEventListener('drop', e => {
-      e.preventDefault();
-      zone.classList.remove('drag-over');
-      if (dragging) { zone.appendChild(dragging); checkPoolEmpty(); }
-    });
-  }
+// NUEVO ALGORITMO: Calcula de manera mucho más precisa si estás antes o después
+function getInsertBefore(zone, cx, cy) {
+  const cards = [...zone.querySelectorAll('.char-card:not(.dragging)')];
+  if (cards.length === 0) return null;
 
-  bindDropZone(pool);
-  document.querySelectorAll('.tier-drop').forEach(bindDropZone);
-
-  /* ── TOUCH DRAG (mobile) ── */
-  let touchCard = null;
-  let touchOrigin = null;
-  let touchMoved = false;
-  let longPressTimer = null;
-  let touchDragging = false;
-
-  function setupTouch(card) {
-    card.addEventListener('touchstart', e => {
-      touchCard = card;
-      touchMoved = false;
-      touchDragging = false;
-      const t = e.touches[0];
-      touchOrigin = { x: t.clientX, y: t.clientY };
-
-      longPressTimer = setTimeout(() => {
-        touchDragging = true;
-        card.classList.add('touch-active');
-        ghostImg.src = card.dataset.src;
-        touchGhost.style.display = 'block';
-        touchGhost.style.left = (touchOrigin.x - 32) + 'px';
-        touchGhost.style.top  = (touchOrigin.y - 32) + 'px';
-        if (navigator.vibrate) navigator.vibrate(40);
-      }, 180);
-    }, { passive: true });
-
-    card.addEventListener('touchmove', e => {
-      touchMoved = true;
-      if (!touchDragging) { clearTimeout(longPressTimer); return; }
-      e.preventDefault();
-      const t = e.touches[0];
-      touchGhost.style.left = (t.clientX - 32) + 'px';
-      touchGhost.style.top  = (t.clientY - 32) + 'px';
-    }, { passive: false });
-
-    card.addEventListener('touchend', e => {
-      clearTimeout(longPressTimer);
-      card.classList.remove('touch-active');
-      touchGhost.style.display = 'none';
-
-      if (!touchDragging) { touchCard = null; return; }
-
-      const t = e.changedTouches[0];
-      const el = document.elementFromPoint(t.clientX, t.clientY);
-      const zone = el && (el.closest('.tier-drop') || el.closest('#characterPool'));
-      if (zone && zone !== card.parentElement) {
-        zone.appendChild(card);
-        checkPoolEmpty();
+  for (let card of cards) {
+    const r = card.getBoundingClientRect();
+    // Verificamos si el cursor se encuentra dentro de la fila vertical de la tarjeta
+    if (cy >= r.top && cy <= r.bottom) {
+      // Si está a la izquierda de la mitad del ancho de la tarjeta, va ANTES
+      if (cx < r.left + r.width / 2) {
+        return card;
       }
-      touchDragging = false;
-      touchCard = null;
-    }, { passive: true });
+    } else if (cy < r.top) {
+      // Si el cursor está completamente por encima de esta tarjeta en una fila superior
+      return card;
+    }
+  }
+  return null;
+}
+
+// ─────────────────────────────────────────────
+//  MOUSE DRAG (Escritorio)
+// ─────────────────────────────────────────────
+function setupMouseDrag(card) {
+  card.addEventListener('dragstart', e => {
+    mouseDragging = card;
+    e.dataTransfer.effectAllowed = 'move';
+    const blank = document.createElement('canvas');
+    blank.width = blank.height = 1;
+    e.dataTransfer.setDragImage(blank, 0, 0);
+    setTimeout(() => card.classList.add('dragging'), 0);
+  });
+
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging');
+    mouseDragging = null;
+    removePlaceholder();
+    document.querySelectorAll('.drag-over').forEach(z => z.classList.remove('drag-over'));
+    checkPoolEmpty();
+  });
+}
+
+function bindDropZone(zone) {
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    if (!mouseDragging) return;
+    zone.classList.add('drag-over');
+    const before = getInsertBefore(zone, e.clientX, e.clientY);
+    before ? zone.insertBefore(placeholder, before) : zone.appendChild(placeholder);
+  });
+
+  zone.addEventListener('dragleave', e => {
+    if (!zone.contains(e.relatedTarget)) {
+      zone.classList.remove('drag-over');
+      if (placeholder.parentNode === zone) removePlaceholder();
+    }
+  });
+
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    if (!mouseDragging) return;
+    if (placeholder.parentNode === zone) {
+      zone.insertBefore(mouseDragging, placeholder);
+    } else {
+      zone.appendChild(mouseDragging);
+    }
+    removePlaceholder();
+    checkPoolEmpty();
+  });
+}
+
+bindDropZone(pool);
+document.querySelectorAll('.tier-drop').forEach(bindDropZone);
+
+// ─────────────────────────────────────────────
+//  TOUCH DRAG TRATADO Y CORREGIDO (Móviles)
+// ─────────────────────────────────────────────
+document.addEventListener('touchstart', e => {
+  const card = e.target.closest('.char-card');
+  if (!card || e.target.closest('.delete-btn')) return;
+
+  touchCard     = card;
+  touchDragging = false;
+  lastTargetZone = null; 
+  const t = e.touches[0];
+  touchStartX = t.clientX;
+  touchStartY = t.clientY;
+}, { passive: true });
+
+document.addEventListener('touchmove', e => {
+  if (!touchCard) return;
+  const t = e.touches[0];
+
+  if (!touchDragging) {
+    const dx = t.clientX - touchStartX;
+    const dy = t.clientY - touchStartY;
+    if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+
+    touchDragging = true;
+    touchCard.classList.add('dragging');
+    ghostImg.src = touchCard.dataset.src;
+    touchGhost.style.display = 'block';
+    if (navigator.vibrate) navigator.vibrate(15);
   }
 
-  function clearAll() {
-    if (!confirm('¿Eliminar todos los personajes y limpiar el tier list?')) return;
-    document.querySelectorAll('.char-card').forEach(c => c.remove());
-    poolEmpty.style.display = '';
+  e.preventDefault(); // Evita scroll
+
+  // Mueve el clon flotante
+  touchGhost.style.left = (t.clientX - 34) + 'px';
+  touchGhost.style.top  = (t.clientY - 45) + 'px'; 
+
+  // Escaneo debajo del dedo de manera segura
+  touchGhost.style.visibility = 'hidden';
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  touchGhost.style.visibility = 'visible';
+
+  const zone = el && (el.closest('.tier-drop') || el.closest('#characterPool'));
+
+  document.querySelectorAll('.drag-over').forEach(z => z.classList.remove('drag-over'));
+
+  if (zone) {
+    lastTargetZone = zone; // Guardamos la zona para asegurar el drop final
+    zone.classList.add('drag-over');
+    const before = getInsertBefore(zone, t.clientX, t.clientY);
+    if (before) {
+      zone.insertBefore(placeholder, before);
+    } else {
+      zone.appendChild(placeholder);
+    }
+  } else {
+    // Si sale de una zona a un espacio vacío intermedio, removemos temporalmente el placeholder
+    removePlaceholder();
+  }
+}, { passive: false });
+
+document.addEventListener('touchend', e => {
+  if (!touchCard) return;
+
+  touchGhost.style.display = 'none';
+  touchCard.classList.remove('dragging');
+
+  if (touchDragging) {
+    // CORRECCIÓN CLAVE: Si el placeholder existe insertamos ahí, si no, usamos la última zona detectada.
+    if (placeholder.parentNode) {
+      placeholder.parentNode.insertBefore(touchCard, placeholder);
+    } else if (lastTargetZone) {
+      lastTargetZone.appendChild(touchCard);
+    }
+    
+    removePlaceholder();
+    document.querySelectorAll('.drag-over').forEach(z => z.classList.remove('drag-over'));
+    checkPoolEmpty();
   }
 
-  function exportImage() {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-    script.onload = () => {
-      html2canvas(document.getElementById('tierContainer'), { backgroundColor: '#0A0A0F', scale: 2, useCORS: true }).then(canvas => {
-        const a = document.createElement('a');
-        a.download = 'tierlist.png';
-        a.href = canvas.toDataURL('image/png');
-        a.click();
-      });
-    };
-    script.onerror = () => alert('No se pudo exportar. Toma una captura de pantalla.');
-    document.head.appendChild(script);
-  }
+  touchCard      = null;
+  touchDragging = false;
+  lastTargetZone = null;
+}, { passive: true });
+
+document.addEventListener('touchcancel', () => {
+  if (!touchCard) return;
+  touchGhost.style.display = 'none';
+  touchCard.classList.remove('dragging');
+  removePlaceholder();
+  document.querySelectorAll('.drag-over').forEach(z => z.classList.remove('drag-over'));
+  touchCard      = null;
+  touchDragging = false;
+  lastTargetZone = null;
+});
+
+// ─────────────────────────────────────────────
+//  UTILITIES
+// ─────────────────────────────────────────────
+function clearAll() {
+  if (!confirm('¿Eliminar todos los personajes y limpiar el tier list?')) return;
+  document.querySelectorAll('.char-card').forEach(c => c.remove());
+  poolEmpty.style.display = '';
+}
+
+function exportImage() {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+  script.onload = () => {
+    html2canvas(document.getElementById('tierContainer'), {
+      backgroundColor: '#0A0A0F',
+      scale: 2,
+      useCORS: true,
+      logging: false
+    }).then(canvas => {
+      const a = document.createElement('a');
+      a.download = 'tierlist.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    });
+  };
+  script.onerror = () => alert('No se pudo exportar. Toma una captura de pantalla.');
+  document.head.appendChild(script);
+}
 </script>
 </body>
 </html>
